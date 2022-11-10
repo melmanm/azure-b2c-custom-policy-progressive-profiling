@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
+    PolicySchemaVersion="0.3.0.0" 
+    TenantId="yourtenant.onmicrosoft.com"
+    PolicyId="B2C_1A_ProgressiveProfile_TrustFrameworkBase" 
+    PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_ProgressiveProfile_TrustFrameworkBase">
+
+    <BasePolicy>
+        <TenantId>yourtenant.onmicrosoft.com</TenantId>
+        <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    </BasePolicy>
+    <BuildingBlocks>
+        <ClaimsSchema>
+            <ClaimType Id="extension_PPCounter">
+                <DisplayName>Log in counter. Resets after any progressive profiling action</DisplayName>
+                <DataType>int</DataType>
+            </ClaimType>
+
+            <ClaimType Id="PPShouldExecute">
+                <DisplayName>Indicates if progressive profiling should be executed in user journey</DisplayName>
+                <DataType>boolean</DataType>               
+            </ClaimType>
+
+            <ClaimType Id="PPExecuted">
+                <DisplayName>Executed-SelfAsserted-Input</DisplayName>
+                <DataType>string</DataType>
+                <UserHelpText>Indicates if progressive profiling was executed in current user journey</UserHelpText>
+            </ClaimType>
+        </ClaimsSchema>
+        <ClaimsTransformations>
+            <ClaimsTransformation Id="SetProgressiveProfilingShouldExecute" TransformationMethod="AssertNumber">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="extension_PPCounter" TransformationClaimType="inputClaim" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="Operator" DataType="string" Value="GreaterThanOrEqual" />
+                    <InputParameter Id="CompareToValue" DataType="int" Value="3" />
+                    <InputParameter Id="throwError" DataType="boolean" Value="false" />
+                </InputParameters>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="PPShouldExecute" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+
+            <ClaimsTransformation Id="IncrementProgressiveProfileCounter" TransformationMethod="AdjustNumber">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="extension_PPCounter" TransformationClaimType="inputClaim" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="Operator" DataType="string" Value="INCREMENT" />
+                </InputParameters>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="extension_PPCounter" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+        </ClaimsTransformations>
+    </BuildingBlocks>
+
+    <ClaimsProviders>
+        <ClaimsProvider>
+            <DisplayName>Self Asserted Progressive Profiling</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="SelfAsserted-ProgressiveProfiling">
+                    <DisplayName>User ID signup</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="ContentDefinitionReferenceId">api.selfasserted.profileupdate</Item>
+                    </Metadata>
+                    <IncludeInSso>false</IncludeInSso>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="PPExecuted" DefaultValue="true" />
+                    </OutputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+
+        <ClaimsProvider>
+            <DisplayName>Azure Active Directory</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="AAD-Common">
+                    <Metadata>
+                        <Item Key="ApplicationObjectId">fill-in-b2c-extensions-app-ApplicationObjectId/Item>
+                        <Item Key="ClientId">fill-in-b2c-extensions-app-ClientId</Item>
+                    </Metadata>
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="AAD-WriteProgressiveProfilingProperty">
+                    <Metadata>
+                        <Item Key="Operation">Write</Item>
+                        <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">false</Item>
+                        <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">true</Item>
+                    </Metadata>
+                    <IncludeInSso>false</IncludeInSso>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
+                    </InputClaims>
+                    <PersistedClaims>
+                        <!-- Required claims -->
+                        <PersistedClaim ClaimTypeReferenceId="objectId" />
+                        <!-- Optional claims -->
+                        <PersistedClaim ClaimTypeReferenceId="extension_PPCounter"/>
+                    </PersistedClaims>
+                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="AAD-UserReadUsingObjectId">
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="extension_PPCounter" DefaultValue="0"/>
+                    </OutputClaims>
+                    <OutputClaimsTransformations>
+                        <OutputClaimsTransformation ReferenceId="IncrementProgressiveProfileCounter" />
+                        <OutputClaimsTransformation ReferenceId="SetProgressiveProfilingShouldExecute" />
+                    </OutputClaimsTransformations>
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="AAD-DeleteProgressiveProfilingCounter">
+                    <Metadata>
+                        <Item Key="Operation">DeleteClaims</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="objectId" Required="true" />
+                    </InputClaims>
+                    <PersistedClaims>
+                        <PersistedClaim ClaimTypeReferenceId="objectId" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_PPCounter" PartnerClaimType="extension_PPCounter"/>
+                    </PersistedClaims>
+                    <OutputClaims />
+                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+
+    </ClaimsProviders>
+</TrustFrameworkPolicy>

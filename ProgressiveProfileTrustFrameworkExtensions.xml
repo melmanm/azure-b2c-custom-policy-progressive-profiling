@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="yourtenant.onmicrosoft.com" PolicyId="B2C_1A_ProgressiveProfile_TrustFrameworkExtensions" PublicPolicyUri="http://yourtenant.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions">
+
+  <BasePolicy>
+    <TenantId>yourtenant.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_ProgressiveProfile_TrustFrameworkBase</PolicyId>
+  </BasePolicy>
+  <BuildingBlocks>
+    <ClaimsSchema>
+
+     <ClaimType Id="extension_FavoriteIde">
+        <DisplayName>What is your favorite IDE?</DisplayName>
+        <DataType>string</DataType>
+        <UserInputType>RadioSingleSelect</UserInputType>
+        <Restriction>
+          <Enumeration Text="VS Code" Value="VSCode" SelectByDefault="true" />
+          <Enumeration Text="Visual Studio " Value="VisualStudio" SelectByDefault="false" />
+          <Enumeration Text="Rider" Value="Rider" SelectByDefault="false" />
+        </Restriction>
+      </ClaimType>
+
+      <ClaimType Id="extension_FavoriteProgrammingLanguage">
+        <DisplayName>What is your favorite programming language?</DisplayName>
+        <DataType>string</DataType>
+        <UserInputType>TextBox</UserInputType>
+      </ClaimType>
+
+    </ClaimsSchema>
+  </BuildingBlocks>
+  
+  <ClaimsProviders>
+    <ClaimsProvider>
+      <DisplayName>Self Asserted</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="SelfAsserted-ProgressiveProfiling-FavoriteIde">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="extension_FavoriteIde"/>
+          </OutputClaims>
+          <IncludeTechnicalProfile ReferenceId="SelfAsserted-ProgressiveProfiling" />
+        </TechnicalProfile>
+        <TechnicalProfile Id="SelfAsserted-ProgressiveProfiling-FavoriteProgrammingLanguage">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="extension_FavoriteProgrammingLanguage"/>
+          </OutputClaims>
+          <IncludeTechnicalProfile ReferenceId="SelfAsserted-ProgressiveProfiling" />
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Azure Active Directory</DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="AAD-WriteProgressiveProfilingProperty">
+          <PersistedClaims>
+            <PersistedClaim ClaimTypeReferenceId="extension_FavoriteIde"/>
+            <PersistedClaim ClaimTypeReferenceId="extension_FavoriteProgrammingLanguage"/>
+          </PersistedClaims>
+        </TechnicalProfile>
+        <TechnicalProfile Id="AAD-UserReadUsingObjectId">
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="extension_FavoriteIde"/>
+            <OutputClaim ClaimTypeReferenceId="extension_FavoriteProgrammingLanguage"/>
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+  </ClaimsProviders>
+
+  <UserJourneys>
+    <UserJourney Id="SignUpOrSignInProgressive">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
+          <ClaimsProviderSelections>
+            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
+          </ClaimsProviderSelections>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="4" Type="InvokeSubJourney">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>PPShouldExecute</Value>
+              <Value>false</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <JourneyList>
+            <Candidate SubJourneyReferenceId="SelfAssertedProgressiveProfile" />
+          </JourneyList>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
+          <ClaimsExchanges>
+            <ClaimsExchange Id="UserWrite_ProgressiveProfileUsingObjectId" TechnicalProfileReferenceId="AAD-WriteProgressiveProfilingProperty" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="6" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
+              <Value>PPShouldExecute</Value>
+              <Value>false</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="DeleteClaimUpdateExchange" TechnicalProfileReferenceId="AAD-DeleteProgressiveProfilingCounter" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="7" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+      </OrchestrationSteps>
+      <ClientDefinition ReferenceId="DefaultWeb" />
+    </UserJourney>
+  </UserJourneys>
+
+  <SubJourneys>
+    <SubJourney Id="SelfAssertedProgressiveProfile" Type="Call">
+      <OrchestrationSteps>
+        <OrchestrationStep Order="1" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>extension_FavoriteIde</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>PPExecuted</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="ProfileUpdateExchangeFavoriteIde" TechnicalProfileReferenceId="SelfAsserted-ProgressiveProfiling-FavoriteIde" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+
+        <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>extension_FavoriteProgrammingLanguage</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>PPExecuted</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="ProfileUpdateExchangeFavoriteProgrammingLanguage" TechnicalProfileReferenceId="SelfAsserted-ProgressiveProfiling-FavoriteProgrammingLanguage" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+      </OrchestrationSteps>
+    </SubJourney>
+  </SubJourneys>
+</TrustFrameworkPolicy>
