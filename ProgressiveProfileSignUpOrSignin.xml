@@ -19,8 +19,8 @@
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="extension_FavoriteIde"/>
-        <OutputClaim ClaimTypeReferenceId="extension_FavoriteProgrammingLanguage" />
+        <OutputClaim ClaimTypeReferenceId="extension_PreferedTraining"/>
+        <OutputClaim ClaimTypeReferenceId="extension_PreferedExcercises" />
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
         <OutputClaim ClaimTypeReferenceId="surname" />

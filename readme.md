@@ -14,5 +14,5 @@ Following TrustFrameworkPolicies implement progressive profiling features
 2. In `ProgressiveProfileTrustFrameworkBase.xml` replace `fill-in-b2c-extensions-app-ClientId` and `fill-in-b2c-extensions-app-ApplicationObjectId` with ApplicationObjectId and ClientId of b2c-extensions-app (which is created by default in B2C tenant)
 3. Add following user custom properties:
     * extension_PPCounter
-    * extension_FavoriteIde
-    * extension_FavoriteProgrammingLanguage
+    * extension_PreferedTraining
+    * extension_PreferedExcercises

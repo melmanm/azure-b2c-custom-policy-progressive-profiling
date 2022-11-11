@@ -10,39 +10,45 @@
   <BuildingBlocks>
     <ClaimsSchema>
 
-     <ClaimType Id="extension_FavoriteIde">
-        <DisplayName>What is your favorite IDE?</DisplayName>
+      <ClaimType Id="extension_PreferedTraining">
+        <DisplayName>What type of training do you prefer?</DisplayName>
         <DataType>string</DataType>
         <UserInputType>RadioSingleSelect</UserInputType>
         <Restriction>
-          <Enumeration Text="VS Code" Value="VSCode" SelectByDefault="true" />
-          <Enumeration Text="Visual Studio " Value="VisualStudio" SelectByDefault="false" />
-          <Enumeration Text="Rider" Value="Rider" SelectByDefault="false" />
+          <Enumeration Text="Cardio" Value="Cardio" SelectByDefault="true" />
+          <Enumeration Text="Strength training" Value="Strength" SelectByDefault="false" />
+          <Enumeration Text="Stretching" Value="Stretching" SelectByDefault="false" />
         </Restriction>
       </ClaimType>
 
-      <ClaimType Id="extension_FavoriteProgrammingLanguage">
-        <DisplayName>What is your favorite programming language?</DisplayName>
+      <ClaimType Id="extension_PreferedExcercises">
+        <DisplayName>What excercises do you like?</DisplayName>
         <DataType>string</DataType>
-        <UserInputType>TextBox</UserInputType>
+        <UserInputType>CheckboxMultiSelect</UserInputType>
+        <Restriction>
+          <Enumeration Text="Push Ups" Value="PushUps" SelectByDefault="false" />
+          <Enumeration Text="Pull Ups" Value="France" SelectByDefault="false" />
+          <Enumeration Text="Squats" Value="France" SelectByDefault="false" />
+          <Enumeration Text="Bench Press" Value="BenchPress" SelectByDefault="false" />
+        </Restriction>
       </ClaimType>
 
     </ClaimsSchema>
   </BuildingBlocks>
-  
+
   <ClaimsProviders>
     <ClaimsProvider>
       <DisplayName>Self Asserted</DisplayName>
       <TechnicalProfiles>
-        <TechnicalProfile Id="SelfAsserted-ProgressiveProfiling-FavoriteIde">
+        <TechnicalProfile Id="SelfAsserted-ProgressiveProfiling-PreferedTraining">
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="extension_FavoriteIde"/>
+            <OutputClaim ClaimTypeReferenceId="extension_PreferedTraining"/>
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="SelfAsserted-ProgressiveProfiling" />
         </TechnicalProfile>
-        <TechnicalProfile Id="SelfAsserted-ProgressiveProfiling-FavoriteProgrammingLanguage">
+        <TechnicalProfile Id="SelfAsserted-ProgressiveProfiling-PreferedExcercises">
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="extension_FavoriteProgrammingLanguage"/>
+            <OutputClaim ClaimTypeReferenceId="extension_PreferedExcercises"/>
           </OutputClaims>
           <IncludeTechnicalProfile ReferenceId="SelfAsserted-ProgressiveProfiling" />
         </TechnicalProfile>
@@ -54,14 +60,14 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="AAD-WriteProgressiveProfilingProperty">
           <PersistedClaims>
-            <PersistedClaim ClaimTypeReferenceId="extension_FavoriteIde"/>
-            <PersistedClaim ClaimTypeReferenceId="extension_FavoriteProgrammingLanguage"/>
+            <PersistedClaim ClaimTypeReferenceId="extension_PreferedTraining"/>
+            <PersistedClaim ClaimTypeReferenceId="extension_PreferedExcercises"/>
           </PersistedClaims>
         </TechnicalProfile>
         <TechnicalProfile Id="AAD-UserReadUsingObjectId">
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="extension_FavoriteIde"/>
-            <OutputClaim ClaimTypeReferenceId="extension_FavoriteProgrammingLanguage"/>
+            <OutputClaim ClaimTypeReferenceId="extension_PreferedTraining"/>
+            <OutputClaim ClaimTypeReferenceId="extension_PreferedExcercises"/>
           </OutputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>
@@ -142,7 +148,7 @@
         <OrchestrationStep Order="1" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>extension_FavoriteIde</Value>
+              <Value>extension_PreferedTraining</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -151,14 +157,14 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="ProfileUpdateExchangeFavoriteIde" TechnicalProfileReferenceId="SelfAsserted-ProgressiveProfiling-FavoriteIde" />
+            <ClaimsExchange Id="ProfileUpdateExchangePreferedTraining" TechnicalProfileReferenceId="SelfAsserted-ProgressiveProfiling-PreferedTraining" />
           </ClaimsExchanges>
         </OrchestrationStep>
 
         <OrchestrationStep Order="2" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>extension_FavoriteProgrammingLanguage</Value>
+              <Value>extension_PreferedExcercises</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -167,7 +173,7 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="ProfileUpdateExchangeFavoriteProgrammingLanguage" TechnicalProfileReferenceId="SelfAsserted-ProgressiveProfiling-FavoriteProgrammingLanguage" />
+            <ClaimsExchange Id="ProfileUpdateExchangePreferedExcercises" TechnicalProfileReferenceId="SelfAsserted-ProgressiveProfiling-PreferedExcercises" />
           </ClaimsExchanges>
         </OrchestrationStep>
       </OrchestrationSteps>
