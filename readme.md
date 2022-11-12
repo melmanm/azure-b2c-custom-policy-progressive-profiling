@@ -7,7 +7,7 @@ https://github.com/Azure-Samples/active-directory-b2c-custom-policy-starterpack.
 Following TrustFrameworkPolicies implement progressive profiling features
 1. `ProgressiveProfile_TrustFrameworkBase`  defines base claims and technical profile to handle progressive profiling and exchange claims with AAD and handle user input.
 2. `ProgressiveProfile_TrustFrameworkExtensions` defines claims impementation specific claims which will gathered from user in progressive profiling flow. Implements UserJourney.
-3. `progressive_signup_signin` defines `RelyingParty` which specifies final token claims.
+3. `B2C_1A_ProgressiveProfile_SignUpOrSignIn` defines `RelyingParty` which specifies final token claims.
 
 ## How to start
 1. Replace `yourtenant.onmicrosoft.com` with target tenant name in all files.
