@@ -27,4 +27,4 @@ Following TrustFrameworkPolicies implement progressive profiling features
 9. Rigt menu should show up. Under Select Applcication select created Applicaiton Registration
 10. Click Run Now
 11. Sign up or Create user in Azure B2C tenant Users blade
-12. Try to sing-in 3 times. Progressive profiling form should will be displayed.
+12. Try to sing-in 3 times. Progressive profiling form will be displayed.
