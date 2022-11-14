@@ -126,7 +126,7 @@
         <OrchestrationStep Order="6" Type="ClaimsExchange">
           <Preconditions>
             <Precondition Type="ClaimEquals" ExecuteActionsIf="true">
-              <Value>PPShouldExecute</Value>
+              <Value>PPExecuted</Value>
               <Value>false</Value>
               <Action>SkipThisOrchestrationStep</Action>
             </Precondition>
