@@ -27,8 +27,8 @@
         <UserInputType>CheckboxMultiSelect</UserInputType>
         <Restriction>
           <Enumeration Text="Push Ups" Value="PushUps" SelectByDefault="false" />
-          <Enumeration Text="Pull Ups" Value="France" SelectByDefault="false" />
-          <Enumeration Text="Squats" Value="France" SelectByDefault="false" />
+          <Enumeration Text="Pull Ups" Value="PullUps" SelectByDefault="false" />
+          <Enumeration Text="Squats" Value="Squats" SelectByDefault="false" />
           <Enumeration Text="Bench Press" Value="BenchPress" SelectByDefault="false" />
         </Restriction>
       </ClaimType>
